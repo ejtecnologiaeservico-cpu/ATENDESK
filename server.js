@@ -353,6 +353,47 @@ io.on('connection', async (socket) => {
     });
 });
 
+// --- ROTAS DE CONFIGURAÇÃO DE TIPOS DE VISITA ---
+app.get('/api/config/tipos-visita', async (req, res) => {
+    try {
+        const tipos = await db.query("SELECT * FROM tipos_visita ORDER BY nome ASC");
+        res.json(tipos);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/config/tipos-visita', async (req, res) => {
+    const { nome } = req.body;
+    try {
+        const result = await db.run("INSERT INTO tipos_visita (nome) VALUES (?)", [nome]);
+        res.status(201).json({ id: result.id, nome });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/config/tipos-visita/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nome } = req.body;
+    try {
+        await db.run("UPDATE tipos_visita SET nome = ? WHERE id = ?", [nome, id]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/config/tipos-visita/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await db.run("DELETE FROM tipos_visita WHERE id = ?", [id]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 server.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });

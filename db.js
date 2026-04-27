@@ -79,6 +79,22 @@ function createTables() {
             FOREIGN KEY (cpf) REFERENCES visitantes (cpf)
         )`);
 
+        // Tabela de Tipos de Visita
+        db.run(`CREATE TABLE IF NOT EXISTS tipos_visita (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL UNIQUE
+        )`);
+
+        // Inserir tipos padrão se vazio
+        db.get("SELECT COUNT(*) as count FROM tipos_visita", (err, row) => {
+            if (row && row.count === 0) {
+                const defaultTipos = ['VISITANTE', 'ADVOGADO', 'PARTE', 'OUTROS'];
+                const stmt = db.prepare("INSERT INTO tipos_visita (nome) VALUES (?)");
+                defaultTipos.forEach(t => stmt.run(t));
+                stmt.finalize();
+            }
+        });
+
         // Inserir cartórios padrão se a tabela estiver vazia
         db.get("SELECT COUNT(*) as count FROM cartorios", (err, row) => {
             if (row && row.count === 0) {
